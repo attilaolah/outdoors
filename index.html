@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Attila Oláh <attilaolah@gmail.com>">
+  <meta name="description" content="Outdoors: A collection of point clouds.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Outdoors</title>
+
+  <link rel="stylesheet" type="text/css" href="third_party/potree/potree.css">
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
+        integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ=="
+        crossorigin="anonymous" />
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.css"
+        integrity="sha512-D2c/nmSVlwoZk29SLwJK8GkLyCyPuNbZ/vZQL/lNzw+o+yXzsbnJt7lK/iCfdBmgyLRDi0qx27gpE8Zb1C6I7g=="
+        crossorigin="anonymous" />
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.css"
+        integrity="sha512-KuSX+43gVS5MEIJD2ewtrFPOHqC1PJnL8o2f5ciggPC0JUZ8XV0QXlfArO1mSzKkVFdRjsBDfrTU96C5SuRfqQ=="
+        crossorigin="anonymous" />
+  <link rel="stylesheet" type="text/css" href="third_party/jstree/themes/mixed/style.min.css">
+</head>
+
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+          integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.1/spectrum.min.js"
+          integrity="sha512-1aNp9qKP+hKU/VJwCtYqJP9tdZWbMDN5pEEXXoXT0pTAxZq1HHZhNBR/dtTNSrHO4U1FsFGGILbqG1O9nl8Mdg=="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"
+          integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA=="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.min.js"
+          integrity="sha512-ZoEQdcOJ16M20VnLaQxmZlthvLdTbF9CSAAyvZyzru+Em8NEY+7Xy0jdWdUjdOlo7hbPVmaobVBpUF9aqmXENA=="
+          crossorigin="anonymous"></script>
+  <script src="third_party/three.js/extra/lines.js"></script>
+  <script src="third_party/binary_heap/binary_heap.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.0/tween.umd.min.js"
+          integrity="sha512-ui96zvM/vF8mtsCm5k/qk8ZiIzj8wJIFGw5CSFVX343tBpRTVFX1YVw3/3FFxT7vZzqKBHdgzge/F0kgbMBDww=="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"
+          integrity="sha512-FHsFVKQ/T1KWJDGSbrUhTJyS1ph3eRrxI228ND0EGaEp6v4a/vGwPWd3Dtd/+9cI7ccofZvl/wulICEurHN1pg=="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.min.js"
+          integrity="sha512-EKjCCRjU5ClBwaRb6dGbElFNWJTE7Ek7+PlXelkum5uofPwlf6u2VRch1ty3csFCQn9XdyX89Te8jVg61qtm3Q=="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.js"
+          integrity="sha512-O7kHS9ooekX8EveiC94z9xSvD/4xt10Qigl6uEKvspYykdux3Ci5QNu5fwi4ca0ZkZI/oCgx5ja8RklWUEqzxQ=="
+          crossorigin="anonymous"></script>
+  <script src="third_party/i18next/i18next.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.10/jstree.min.js"
+          integrity="sha512-fgHQj3Fsk5TtG3XglZ/JkE06lx/gJdBZ+Lll785gf5RW3NWcGsyTBwauFtwrlZvpsuv6XSjzB97fBNagkT6uDg=="
+          crossorigin="anonymous"></script>
+  <script src="third_party/potree/potree.js"></script>
+  
+  <div class="potree_container" style="position: absolute; width: 100%; height: 100%; left: 0px; top: 0px; ">
+    <div id="potree_render_area"></div>
+    <div id="potree_sidebar_container"> </div>
+  </div>
+  
+  <script>
+  
+    const viewer = new Potree.Viewer(document.getElementById("potree_render_area"), {
+      navigationMode: Potree.EarthControls,
+    });
+    
+    viewer.setEDLEnabled(true);
+    viewer.setFOV(60);
+    viewer.setPointBudget(1*1000*1000);
+    viewer.loadSettingsFromURL();
+    
+    viewer.setDescription(`<a href="https://goo.gl/maps/AxG2ugYfhpVQ7PGZ7">7HJG+64 Oberrieden</a>`);
+    
+    viewer.loadGUI(() => {
+      viewer.setLanguage('en');
+      $("#menu_tools").next().show();
+      $("#menu_clipping").next().show();
+      //viewer.toggleSidebar();
+    });
+    
+    // Load and add point cloud to scene
+    Potree.loadPointCloud("data/cloud.js", "7HJG+64 Oberrieden", e => {
+      const scene = viewer.scene;
+      const pointcloud = e.pointcloud;
+      
+      const material = pointcloud.material;
+      material.size = 1;
+      material.minSize = 1;
+      material.pointSizeType = Potree.PointSizeType.ATTENUATED;
+      material.shape = Potree.PointShape.CIRCLE;
+      
+      scene.addPointCloud(pointcloud);
+      
+      scene.view.position.set(0.12, -1.52, 0.75);
+      scene.view.lookAt(new THREE.Vector3(-0.09, -0.11, -0.01));
+      //viewer.fitToScreen();
+    });
+    
+  </script>
+  
+  
+  </body>
+</html>
