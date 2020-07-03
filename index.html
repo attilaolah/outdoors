@@ -63,45 +63,41 @@
   </div>
   
   <script>
-  
+    "use strict";
+
     const viewer = new Potree.Viewer(document.getElementById("potree_render_area"), {
       navigationMode: Potree.EarthControls,
     });
     
     viewer.setEDLEnabled(true);
     viewer.setFOV(60);
-    viewer.setPointBudget(1*1000*1000);
+    viewer.setPointBudget(10*1000*1000);
     viewer.loadSettingsFromURL();
     
-    viewer.setDescription(`<a href="https://goo.gl/maps/AxG2ugYfhpVQ7PGZ7">7HJG+64 Oberrieden</a>`);
+    viewer.setDescription("");
     
     viewer.loadGUI(() => {
       viewer.setLanguage('en');
       $("#menu_tools").next().show();
       $("#menu_clipping").next().show();
-      //viewer.toggleSidebar();
     });
     
-    // Load and add point cloud to scene
-    Potree.loadPointCloud("data/cloud.js", "7HJG+64 Oberrieden", e => {
+    Potree.loadPointCloud("models/kis-u-13/cloud.js", document.title, e => {
       const scene = viewer.scene;
       const pointcloud = e.pointcloud;
-      
       const material = pointcloud.material;
+
       material.size = 1;
       material.minSize = 1;
       material.pointSizeType = Potree.PointSizeType.ATTENUATED;
       material.shape = Potree.PointShape.CIRCLE;
       
       scene.addPointCloud(pointcloud);
-      
-      scene.view.position.set(0.12, -1.52, 0.75);
-      scene.view.lookAt(new THREE.Vector3(-0.09, -0.11, -0.01));
-      //viewer.fitToScreen();
+
+      scene.view.pitch = 1.5111838081659836;
+      scene.view.yaw = 4.750241913397452;
+      scene.cameraP.position.set(-0.3052363555549789, 0.5219459987329474, -0.9829805317758122);
     });
-    
-  </script>
-  
-  
+  </script> 
   </body>
 </html>
